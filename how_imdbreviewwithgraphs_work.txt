@@ -1,0 +1,17 @@
+HOW IMDB REVIEW Notebook works: 
+
+Section 1: Imports. Loads csv (reads the dataset), numpy (counts and math on True/False arrays), and matplotlib.pyplot (draws the charts).
+
+Section 2: Configuration. Sets the dataset filename and defines 8 keywords to test: four positive words (excellent, amazing, wonderful, brilliant) and four negative ones (terrible, boring, awful, worst). They are combined into one KEYWORDS list.
+
+Section 3: Punctuation table. Builds a lookup that turns every punctuation character into a space, so “awful!” and “(boring)” still match their keywords.
+
+Section 4: Functions and main(). This is the section that does the work:
+
+tokenize cleans a review and returns its set of words, so each keyword counts at most once per review.
+load_data reads the CSV once and records, for every review, whether it is positive and which keywords it contains.
+bayes_theorem computes P(Positive | keyword) from the prior, likelihood, and marginal.
+analyze_keyword calculates the prior, likelihood, marginal, and posterior for one keyword, plus a direct-count check that should match the posterior.
+print_table prints those numbers as a markdown table.
+make_graphs saves three charts: posterior per keyword, prior vs. likelihood vs. posterior, and review counts.
+main() runs everything in order: load, analyze all 8 keywords, print the tables, then draw and show the graphs.
