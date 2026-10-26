@@ -10,7 +10,7 @@ Group project covering the EM algorithm, Bayes' Theorem on movie reviews, and gr
 |------|-------------|--------------|
 | Uwera Ruth Queen | Part 1, 2, and 3 | Completed all EM_CODE tasks, manually calculated Gradient Descent up to iteration 2 and implemented Bayes’ Theorem calculations using the IMDb dataset.  |
 | Natinael Borana | Part 3 and 4 | Completed all Gradient Descent code and plots, manually calculated iteration 2, and corrected errors in the overall manual calculations. |
-| Maxime Kwizera | Part 2 and 3 | Completed Gradient Descent iteration 3 calculations and Bayes’ code and report. |
+| Maxime Kwizera | Part 2 | Completed calculations of Bayes’ code and report. |
 
 Every member presents in **every** part. See the contribution PDF and Git logs for proof of work.
 
