@@ -225,3 +225,73 @@ Every update is worked out step by step in `manual_calculations.pdf`: prediction
 
 ---
 
+## Part 4: Gradient Descent (Code)
+
+The manual calculations from Part 3 are converted to Python, with every step visible (predict, cost, gradient, update) and no heavy abstraction. Libraries: **numpy, scipy, matplotlib**.
+
+### What the code does
+
+| Function / step | Purpose |
+|-----------------|---------|
+| `calculate_prediction(X, theta)` | ŷ = Xm + b using matrix multiplication (`theta = [m₁, m₂, b]`) |
+| `mse_cost_function(theta, X, y)` | J = (1/N) eᵀe, where e = ŷ - y |
+| `calculate_derivative(cost, theta, X, y)` | Uses SciPy's `approx_fprime` to compute the gradient of any cost function |
+| Update loop | `theta = theta - alpha * grads`, repeated for 30 epochs, saving m, b and cost each time |
+
+### Settings
+
+- Learning rate α = **0.01**, **30** epochs.
+- Start: m = [-1, 2], b = 1 (the same b is added to every prediction).
+
+### Check against the manual work
+
+| | Value |
+|---|---|
+| Initial predictions | [6, 17] |
+| Initial MSE | 61.0000 |
+| Initial gradient (SciPy) | [45, 113, 12] |
+
+These match the hand calculations. (SciPy's numerical derivative shows tiny rounding noise such as 113.00000095.)
+
+### Results after 30 updates
+
+| Parameter | Value |
+|-----------|------:|
+| m₁ | -1.4688 |
+| m₂ | 1.1116 |
+| b | 1.3080 |
+| Final MSE | 1.8177 |
+
+| | Prediction (ŷ) | Actual (y) |
+|---|---:|---:|
+| Sample 1 | 3.1739 | 5 |
+| Sample 2 | 6.5485 | 6 |
+
+The cost fell from **61 to 1.82** and was still decreasing slowly at epoch 30, so the model had not fully converged. More epochs or a larger α would reduce it further.
+
+### Plots
+
+1. **Parameters vs iterations:** m₁, m₂ and b across all epochs.
+2. **MSE vs iterations:** a steep drop in the first few epochs, then a slow, steady decline.
+
+---
+
+## Notes for the Presentation
+
+- **Time:** 15 minutes. Every member speaks in every part.
+- **Part 1:** show the tracking table, answer the "mean split" question, classify the coach's test height, then mention the women-vs-men finding.
+- **Part 2:** show the 8 keyword tables and explain why the posteriors are high even though the likelihoods are low (the marginal is small too).
+- **Part 3:** show the chain rule derivation and each member's update.
+- **Part 4:** run the code and explain the two plots.
+
+## Libraries Used
+
+| Part | Libraries |
+|------|-----------|
+| 1 | numpy, matplotlib, csv (built-in) |
+| 2 | numpy, matplotlib, csv (built-in) |
+| 3 | handwritten (PDF) |
+| 4 | numpy, scipy, matplotlib |
+
+No machine-learning libraries (scikit-learn, etc.) are used anywhere.
+
