@@ -79,3 +79,149 @@ Group 1 is the lower-height group and Group 2 is the higher-height group.
 |---|------|----------|--------|
 | Group 1 (lower, mother-like) | 64.30 | 5.79 | 0.64 |
 | Group 2 (higher, child-like) | 69.79 | 5.47 | 0.36 |
+
+### Classifying a test height
+
+Change `TEST_HEIGHT` (and `UNIT = "cm"` if needed) at the top of `em_mothers.py`. Example for **67 in**:
+
+- P(Group 1, mother-like) = **0.6556**
+- P(Group 2, child-like) = **0.3444**
+
+### Why not just split at the global mean?
+
+- **Overlap:** The groups overlap, but a hard line forces every height into one pile with 100% certainty. EM gives probabilities instead (soft assignments).
+- **Biased estimates:** Cutting the bell curves chops off their tails. The split gave means of 63.58 / 69.47, while EM found 64.30 / 69.79.
+- **Wrong group sizes:** The split forces roughly 55/45. EM found the real proportions are about 64/36.
+- **No uncertainty:** A line cannot say "65% likely". EM can, and its log-likelihood shows how well the model fits.
+
+We still use the mean split as iteration 0, as a starting point that EM then improves.
+
+### Key finding (important caveat)
+
+After the fact, we revealed the hidden labels:
+
+| True group | In Group 1 | In Group 2 |
+|------------|-----------:|-----------:|
+| Mother | 195 | 10 |
+| Daughter | 421 | 32 |
+| Son | 124 | 357 |
+
+EM mostly separated **women (mothers and daughters) from men (sons)**, not mothers from children. Half the children are sons, who are as tall as fathers. So "mother-like" and "child-like" are interpretations, not true identities.
+
+---
+
+## Part 2: Bayesian Probability (IMDb Reviews)
+
+**Dataset:** IMDb 50K Movie Reviews (25,000 positive, 25,000 negative).
+**We compute:** **P(Positive | keyword)** only.
+
+### Bayes' Theorem
+
+```
+P(Positive | keyword) = P(keyword | Positive) × P(Positive) / P(keyword)
+```
+
+### Keywords and justification
+
+- **Positive:** excellent, amazing, wonderful, brilliant (words reviewers use when praising a film).
+- **Negative:** terrible, boring, awful, worst (words reviewers use when criticizing one).
+
+### Results
+
+Prior P(Positive) = **0.5000** for every keyword.
+
+| Keyword | Likelihood P(keyword \| Positive) | Marginal P(keyword) | Posterior P(Positive \| keyword) |
+|---------|-----------------------------------|---------------------|----------------------------------|
+| excellent | 0.1147 | 0.0710 | **0.8074** |
+| amazing | 0.0672 | 0.0432 | **0.7780** |
+| wonderful | 0.0903 | 0.0556 | **0.8122** |
+| brilliant | 0.0635 | 0.0418 | **0.7601** |
+| terrible | 0.0153 | 0.0540 | **0.1418** |
+| boring | 0.0237 | 0.0610 | **0.1940** |
+| awful | 0.0114 | 0.0576 | **0.0985** |
+| worst | 0.0164 | 0.0887 | **0.0927** |
+
+### Method notes
+
+- Text is lowercased, and punctuation and `<br />` tags are removed, so "terrible." still matches "terrible".
+- Each review counts **once** per keyword, however many times it appears.
+- A direct count (positive reviews with keyword / all reviews with keyword) matches the Bayes result, as a sanity check.
+
+### Takeaways
+
+- Positive keywords give posteriors of about 76-81%, negative keywords about 9-19%.
+- "worst" and "awful" are the strongest negative signals. "boring" is the weakest, probably because of phrases like "never boring". Our code does not handle negation.
+
+---
+
+## Part 3: Gradient Descent (Manual Calculation)
+
+**Model:** y = m₁x₁ + m₂x₂ + b, with initial m = [-1, 2], b = [1, 1].
+**Data:** x = ((1, 3), (4, 10)), y = (5, 6).
+
+All steps use **matrix multiplication**, not scalar arithmetic. The number of updates equals the number of group members, and each member completed at least one (see the contribution PDF).
+
+### Setup in matrix form
+
+```
+X = [[1,  3],        m = [[-1],        y = [[5],
+     [4, 10]]             [ 2]]             [6]]
+```
+
+**Predictions:** ŷ = Xm + b
+
+| | Calculation | Result |
+|---|---|---|
+| Sample 1 | (1)(-1) + (3)(2) + 1 | 6 |
+| Sample 2 | (4)(-1) + (10)(2) + 1 | 17 |
+
+So ŷ = [6, 17], the errors (ŷ - y) are [1, 11], and the starting MSE is J = (1² + 11²) / 2 = **61**.
+
+### Gradient derivation (chain rule)
+
+Cost: J(m, b) = (1/N) Σ (ŷᵢ - yᵢ)², where ŷ = Xm + b.
+
+Let e = ŷ - y. By the chain rule, ∂J/∂m = (∂J/∂e)(∂e/∂m):
+
+```
+∂J/∂e = (2/N) e
+∂e/∂m = X        →   ∂J/∂m = (2/N) Xᵀ (ŷ - y)
+∂e/∂b = 1        →   ∂J/∂b = (2/N) Σ (ŷ - y)
+```
+
+### Update rule
+
+```
+m ← m - α · ∂J/∂m
+b ← b - α · ∂J/∂b
+```
+
+### Gradients at the start
+
+With the 1/N convention above:
+
+```
+∂J/∂m = [45, 113]      ∂J/∂b = 12
+```
+
+### Updates (learning rate α = 0.01)
+
+| Update | m₁ | m₂ | b | MSE (J) |
+|:------:|----:|----:|----:|--------:|
+| 0 (start) | -1.0000 | 2.0000 | 1.0000 | 61.0000 |
+| 1 | -1.4500 | 0.8700 | 0.8800 | 6.8450 |
+| 2 | -1.3316 | 1.1808 | 0.9318 | 2.7238 |
+| 3 | -1.3696 | 1.0952 | 0.9362 | 2.3904 |
+
+Example (update 1): m₁ = -1 - 0.01(45) = **-1.45**, m₂ = 2 - 0.01(113) = **0.87**, b = 1 - 0.01(12) = **0.88**.
+
+Every update is worked out step by step in `manual_calculations.pdf`: predictions, error, both gradients, and the new m and b, with the member who completed it named.
+
+### Trend
+
+- The error J drops from 61 to 6.85 after the first update and keeps falling, so m and b are moving in a direction that **reduces the error**.
+- m₁ becomes more negative, m₂ drops from 2 to about 1.1, and b dips slightly at first (0.88) and then rises.
+- The first update is a big jump because the starting gradient is large. After that the steps get smaller.
+
+---
+
