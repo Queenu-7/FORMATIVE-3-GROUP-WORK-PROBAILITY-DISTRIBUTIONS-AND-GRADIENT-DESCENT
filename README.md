@@ -257,15 +257,15 @@ These match the hand calculations. (SciPy's numerical derivative shows tiny roun
 
 | Parameter | Value |
 |-----------|------:|
-| m₁ | -1.4688 |
-| m₂ | 1.1116 |
-| b | 1.3080 |
-| Final MSE | 1.8177 |
+| m₁ | -1.5717 |
+| m₂ | 1.1095 |
+| b | 1.6654 |
+| Final MSE | 1.356827 |
 
 | | Prediction (ŷ) | Actual (y) |
 |---|---:|---:|
-| Sample 1 | 3.1739 | 5 |
-| Sample 2 | 6.5485 | 6 |
+| Sample 1 | 3.42232721 | 5 |
+| Sample 2 | 6.47392283 | 6 |
 
 The cost fell from **61 to 1.82** and was still decreasing slowly at epoch 30, so the model had not fully converged. More epochs or a larger α would reduce it further.
 
